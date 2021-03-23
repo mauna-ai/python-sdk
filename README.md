@@ -4,6 +4,8 @@
 
 ### Build
 
+`poetry install`
+
 `poetry run codegen`
 
 `poetry build`
