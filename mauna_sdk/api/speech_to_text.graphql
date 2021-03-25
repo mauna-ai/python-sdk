@@ -1,7 +1,1 @@
-query speechToText($audio: String!) {
-  callSpeechToText(audioB64: $audio) {
-    transcript: alternatives {
-      text: transcript
-    }
-  }
-}
+../../mauna_graphql/common/speech_to_text.graphql
