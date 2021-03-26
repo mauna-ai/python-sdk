@@ -1,4 +1,4 @@
-from gql import Client
+from gql.client import Client
 from gql.transport.aiohttp import AIOHTTPTransport
 from . import config, utils
 
