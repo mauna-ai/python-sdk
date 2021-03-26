@@ -1,15 +1,1 @@
-query resolveCoreferences($text: String!) {
-  callNlpDoc(text: $text) {
-    coref: extension {
-      detected: has_coref
-      resolvedOutput: coref_resolved
-      clusters: coref_scores {
-        mention
-        references: scores {
-          match: mention
-          score
-        }
-      }
-    }
-  }
-}
+../../mauna_graphql/common/resolve_coreferences.graphql

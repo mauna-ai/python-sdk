@@ -1,9 +1,1 @@
-query getSentiment($text: String!) {
-  callNlpDoc(text: $text) {
-    sentiment
-    sentences: sents {
-      text
-      sentiment
-    }
-  }
-}
+../../mauna_graphql/common/get_sentiment.graphql

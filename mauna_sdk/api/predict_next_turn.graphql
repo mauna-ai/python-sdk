@@ -1,6 +1,1 @@
-query predictNextTurn($history: [String!]!, $alternatives: [String!]!) {
-  callNextDialogTurn(history: $history, alternatives: $alternatives) {
-    nextTurn: alternative
-    confidence
-  }
-}
+../../mauna_graphql/common/predict_next_turn.graphql
