@@ -32,6 +32,16 @@ print(result)
 
 ## API list
 
+### api.parseACE
+
+Takes an ACE text and an output format and produces the parsed ACE according to the format
+
+```javascript
+api.parseACE(text: string, format: ACEOutputType) {
+  result
+}
+```
+
 ### api.parseContext
 
 Takes a list of turns (`{ content: string }`) and parses them to produce a semantic frames-based context object.
