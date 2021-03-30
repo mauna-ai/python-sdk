@@ -15,6 +15,7 @@ requests = "^2.25.1"
 cryptography = "^3.4.6"
 gql = {version = "3.0.0a5", extras = ["all"], allow-prereleases = true}
 py-gql-client = "^1.0.1"
+dataclasses = {version = "^0.6", python = "~3.6"}
 
 
 [build-system]
