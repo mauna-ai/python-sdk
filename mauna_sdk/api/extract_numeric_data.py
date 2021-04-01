@@ -16,7 +16,7 @@ from dataclasses_json import DataClassJsonMixin, config
 # fmt: off
 QUERY: List[str] = ["""
 query extractNumericData($text: String!) {
-  callNlpDoc(text: $text) {
+  result: callNlpDoc(text: $text) {
     tokens {
       numeric_analysis: extension {
         data: nfh_head
@@ -46,7 +46,7 @@ class extractNumericData:
 
             tokens: Optional[List[Token]]
 
-        callNlpDoc: Optional[NlpDoc]
+        result: Optional[NlpDoc]
 
     # fmt: off
     @classmethod
@@ -57,7 +57,7 @@ class extractNumericData:
             gql("".join(set(QUERY))), variable_values=new_variables
         )
         res = cls.extractNumericDataData.from_dict(response_text)
-        return res.callNlpDoc
+        return res.result
 
     # fmt: off
     @classmethod
@@ -68,4 +68,4 @@ class extractNumericData:
             gql("".join(set(QUERY))), variable_values=new_variables
         )
         res = cls.extractNumericDataData.from_dict(response_text)
-        return res.callNlpDoc
+        return res.result

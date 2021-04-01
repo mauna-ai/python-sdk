@@ -16,7 +16,7 @@ from dataclasses_json import DataClassJsonMixin, config
 # fmt: off
 QUERY: List[str] = ["""
 query predictNextTurn($history: [String!]!, $alternatives: [String!]!) {
-  callNextDialogTurn(history: $history, alternatives: $alternatives) {
+  result: callNextDialogTurn(history: $history, alternatives: $alternatives) {
     nextTurn: alternative
     confidence
   }
@@ -34,7 +34,7 @@ class predictNextTurn:
             nextTurn: Optional[str]
             confidence: Optional[Number]
 
-        callNextDialogTurn: Optional[List[DialogAlternative]]
+        result: Optional[List[DialogAlternative]]
 
     # fmt: off
     @classmethod
@@ -45,7 +45,7 @@ class predictNextTurn:
             gql("".join(set(QUERY))), variable_values=new_variables
         )
         res = cls.predictNextTurnData.from_dict(response_text)
-        return res.callNextDialogTurn
+        return res.result
 
     # fmt: off
     @classmethod
@@ -56,4 +56,4 @@ class predictNextTurn:
             gql("".join(set(QUERY))), variable_values=new_variables
         )
         res = cls.predictNextTurnData.from_dict(response_text)
-        return res.callNextDialogTurn
+        return res.result

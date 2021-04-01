@@ -19,8 +19,8 @@ from .enum.a_c_e_output_type import ACEOutputType
 # fmt: off
 QUERY: List[str] = ["""
 query parseACE($text: String!, $format: ACEOutputType!) {
-  callParseACE(text: $text, format: $format, guess: true) {
-    result
+  result: callParseACE(text: $text, format: $format, guess: true) {
+    parsed: result
   }
 }
 
@@ -33,9 +33,9 @@ class parseACE:
     class parseACEData(DataClassJsonMixin):
         @dataclass(frozen=True)
         class ACEResult(DataClassJsonMixin):
-            result: Optional[str]
+            parsed: Optional[str]
 
-        callParseACE: Optional[ACEResult]
+        result: Optional[ACEResult]
 
     # fmt: off
     @classmethod
@@ -46,7 +46,7 @@ class parseACE:
             gql("".join(set(QUERY))), variable_values=new_variables
         )
         res = cls.parseACEData.from_dict(response_text)
-        return res.callParseACE
+        return res.result
 
     # fmt: off
     @classmethod
@@ -57,4 +57,4 @@ class parseACE:
             gql("".join(set(QUERY))), variable_values=new_variables
         )
         res = cls.parseACEData.from_dict(response_text)
-        return res.callParseACE
+        return res.result

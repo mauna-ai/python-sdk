@@ -16,8 +16,11 @@ from dataclasses_json import DataClassJsonMixin, config
 # fmt: off
 QUERY: List[str] = ["""
 query measureSimilarity($sentence: String!, $compareWith: [String!]!) {
-  callMeasureSimilarity(sentence: $sentence, compareWith: $compareWith) {
-    result {
+  result: callMeasureSimilarity(
+    sentence: $sentence
+    compareWith: $compareWith
+  ) {
+    scores: result {
       score
       sentencePair
     }
@@ -38,9 +41,9 @@ class measureSimilarity:
                 score: Optional[Number]
                 sentencePair: Optional[List[str]]
 
-            result: Optional[List[PairSimilarity]]
+            scores: Optional[List[PairSimilarity]]
 
-        callMeasureSimilarity: Optional[SentenceSimilarityScores]
+        result: Optional[SentenceSimilarityScores]
 
     # fmt: off
     @classmethod
@@ -51,7 +54,7 @@ class measureSimilarity:
             gql("".join(set(QUERY))), variable_values=new_variables
         )
         res = cls.measureSimilarityData.from_dict(response_text)
-        return res.callMeasureSimilarity
+        return res.result
 
     # fmt: off
     @classmethod
@@ -62,4 +65,4 @@ class measureSimilarity:
             gql("".join(set(QUERY))), variable_values=new_variables
         )
         res = cls.measureSimilarityData.from_dict(response_text)
-        return res.callMeasureSimilarity
+        return res.result

@@ -16,12 +16,13 @@ from dataclasses_json import DataClassJsonMixin, config
 # fmt: off
 QUERY: List[str] = ["""
 query speechToText($audio: String!) {
-  callSpeechToText(audioB64: $audio) {
+  result: callSpeechToText(audioB64: $audio) {
     transcript: alternatives {
       text: transcript
     }
   }
 }
+
 """
 ]
 
@@ -37,7 +38,7 @@ class speechToText:
 
             transcript: Optional[List[TextAlternative]]
 
-        callSpeechToText: Optional[List[STTResult]]
+        result: Optional[List[STTResult]]
 
     # fmt: off
     @classmethod
@@ -48,7 +49,7 @@ class speechToText:
             gql("".join(set(QUERY))), variable_values=new_variables
         )
         res = cls.speechToTextData.from_dict(response_text)
-        return res.callSpeechToText
+        return res.result
 
     # fmt: off
     @classmethod
@@ -59,4 +60,4 @@ class speechToText:
             gql("".join(set(QUERY))), variable_values=new_variables
         )
         res = cls.speechToTextData.from_dict(response_text)
-        return res.callSpeechToText
+        return res.result

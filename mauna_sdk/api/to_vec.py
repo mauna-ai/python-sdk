@@ -16,7 +16,7 @@ from dataclasses_json import DataClassJsonMixin, config
 # fmt: off
 QUERY: List[str] = ["""
 query toVec($text: String!) {
-  callNlpDoc(text: $text) {
+  result: callNlpDoc(text: $text) {
     has_vector
     vector
     vector_norm
@@ -34,6 +34,7 @@ query toVec($text: String!) {
     }
   }
 }
+
 """
 ]
 
@@ -56,7 +57,7 @@ class toVec:
             sentences: Optional[List[Span]]
             entities: Optional[List[Span]]
 
-        callNlpDoc: Optional[NlpDoc]
+        result: Optional[NlpDoc]
 
     # fmt: off
     @classmethod
@@ -67,7 +68,7 @@ class toVec:
             gql("".join(set(QUERY))), variable_values=new_variables
         )
         res = cls.toVecData.from_dict(response_text)
-        return res.callNlpDoc
+        return res.result
 
     # fmt: off
     @classmethod
@@ -78,4 +79,4 @@ class toVec:
             gql("".join(set(QUERY))), variable_values=new_variables
         )
         res = cls.toVecData.from_dict(response_text)
-        return res.callNlpDoc
+        return res.result

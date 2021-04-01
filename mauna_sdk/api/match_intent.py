@@ -15,15 +15,11 @@ from dataclasses_json import DataClassJsonMixin, config
 
 # fmt: off
 QUERY: List[str] = ["""
-query matchIntent(
-  $input: String!
-  $intent: [String!]!
-  $threshold: Float! = 0.7
-) {
-  callMatchIntent(
+query matchIntent($input: String!, $intents: [String!]!) {
+  result: callMatchIntent(
     input: $input
-    possible_intents: $intent
-    similarity_threshold: $threshold
+    possible_intents: $intents
+    similarity_threshold: 0.7
   ) {
     matches {
       intent: matched_intent
@@ -62,26 +58,26 @@ class matchIntent:
 
             matches: Optional[List[PhraseMatch]]
 
-        callMatchIntent: Optional[MatchIntentOutput]
+        result: Optional[MatchIntentOutput]
 
     # fmt: off
     @classmethod
-    def execute(cls, client: Client, input: str, intent: List[str] = [], threshold: Number) -> Optional[matchIntentData.MatchIntentOutput]:
-        variables: Dict[str, Any] = {"input": input, "intent": intent, "threshold": threshold}
+    def execute(cls, client: Client, input: str, intents: List[str] = []) -> Optional[matchIntentData.MatchIntentOutput]:
+        variables: Dict[str, Any] = {"input": input, "intents": intents}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = client.execute(
             gql("".join(set(QUERY))), variable_values=new_variables
         )
         res = cls.matchIntentData.from_dict(response_text)
-        return res.callMatchIntent
+        return res.result
 
     # fmt: off
     @classmethod
-    async def execute_async(cls, client: Client, input: str, intent: List[str] = [], threshold: Number) -> Optional[matchIntentData.MatchIntentOutput]:
-        variables: Dict[str, Any] = {"input": input, "intent": intent, "threshold": threshold}
+    async def execute_async(cls, client: Client, input: str, intents: List[str] = []) -> Optional[matchIntentData.MatchIntentOutput]:
+        variables: Dict[str, Any] = {"input": input, "intents": intents}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = await client.execute_async(
             gql("".join(set(QUERY))), variable_values=new_variables
         )
         res = cls.matchIntentData.from_dict(response_text)
-        return res.callMatchIntent
+        return res.result

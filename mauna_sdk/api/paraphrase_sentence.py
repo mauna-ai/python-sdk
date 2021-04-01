@@ -15,12 +15,11 @@ from dataclasses_json import DataClassJsonMixin, config
 
 # fmt: off
 QUERY: List[str] = ["""
-query paraphraseSentence($sentence: String!, $count: Int! = 3) {
-  callParaphraseSentence(input: $sentence, number_of_paraphrases: $count) {
+query paraphraseSentence($sentence: String!) {
+  result: callParaphraseSentence(input: $sentence, number_of_paraphrases: 10) {
     paraphrases
   }
 }
-
 
 """
 ]
@@ -33,26 +32,26 @@ class paraphraseSentence:
         class Paraphrase(DataClassJsonMixin):
             paraphrases: Optional[List[str]]
 
-        callParaphraseSentence: Optional[Paraphrase]
+        result: Optional[Paraphrase]
 
     # fmt: off
     @classmethod
-    def execute(cls, client: Client, sentence: str, count: int) -> Optional[paraphraseSentenceData.Paraphrase]:
-        variables: Dict[str, Any] = {"sentence": sentence, "count": count}
+    def execute(cls, client: Client, sentence: str) -> Optional[paraphraseSentenceData.Paraphrase]:
+        variables: Dict[str, Any] = {"sentence": sentence}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = client.execute(
             gql("".join(set(QUERY))), variable_values=new_variables
         )
         res = cls.paraphraseSentenceData.from_dict(response_text)
-        return res.callParaphraseSentence
+        return res.result
 
     # fmt: off
     @classmethod
-    async def execute_async(cls, client: Client, sentence: str, count: int) -> Optional[paraphraseSentenceData.Paraphrase]:
-        variables: Dict[str, Any] = {"sentence": sentence, "count": count}
+    async def execute_async(cls, client: Client, sentence: str) -> Optional[paraphraseSentenceData.Paraphrase]:
+        variables: Dict[str, Any] = {"sentence": sentence}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = await client.execute_async(
             gql("".join(set(QUERY))), variable_values=new_variables
         )
         res = cls.paraphraseSentenceData.from_dict(response_text)
-        return res.callParaphraseSentence
+        return res.result

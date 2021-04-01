@@ -16,7 +16,7 @@ from dataclasses_json import DataClassJsonMixin, config
 # fmt: off
 QUERY: List[str] = ["""
 query parseTextTokens($text: String!) {
-  callNlpDoc(text: $text) {
+  result: callNlpDoc(text: $text) {
     tokens {
       dependency: dep
       entity_type: ent_type
@@ -70,7 +70,7 @@ class parseTextTokens:
 
             tokens: Optional[List[Token]]
 
-        callNlpDoc: Optional[NlpDoc]
+        result: Optional[NlpDoc]
 
     # fmt: off
     @classmethod
@@ -81,7 +81,7 @@ class parseTextTokens:
             gql("".join(set(QUERY))), variable_values=new_variables
         )
         res = cls.parseTextTokensData.from_dict(response_text)
-        return res.callNlpDoc
+        return res.result
 
     # fmt: off
     @classmethod
@@ -92,4 +92,4 @@ class parseTextTokens:
             gql("".join(set(QUERY))), variable_values=new_variables
         )
         res = cls.parseTextTokensData.from_dict(response_text)
-        return res.callNlpDoc
+        return res.result

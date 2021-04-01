@@ -18,7 +18,7 @@ from .input.context_object import ContextObject
 # fmt: off
 QUERY: List[str] = ["""
 query parseContext($turns: [ContextObject!]!) {
-  callParseContext(turns: $turns) {
+  result: callParseContext(turns: $turns) {
     context {
       mentions {
         evokes
@@ -27,6 +27,7 @@ query parseContext($turns: [ContextObject!]!) {
     }
   }
 }
+
 """
 ]
 
@@ -47,7 +48,7 @@ class parseContext:
 
             context: Optional[SlingDocument]
 
-        callParseContext: Optional[List[ContextResult]]
+        result: Optional[List[ContextResult]]
 
     # fmt: off
     @classmethod
@@ -58,7 +59,7 @@ class parseContext:
             gql("".join(set(QUERY))), variable_values=new_variables
         )
         res = cls.parseContextData.from_dict(response_text)
-        return res.callParseContext
+        return res.result
 
     # fmt: off
     @classmethod
@@ -69,4 +70,4 @@ class parseContext:
             gql("".join(set(QUERY))), variable_values=new_variables
         )
         res = cls.parseContextData.from_dict(response_text)
-        return res.callParseContext
+        return res.result
