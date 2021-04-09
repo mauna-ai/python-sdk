@@ -46,7 +46,6 @@ def _encrypt(data, key, iv):
 
 def _decrypt(data, key, iv):
     unpadder = padding.PKCS7(128).unpadder()
-    # unpadded_data = unpadder.update(data) + unpadder.finalize()
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
     decryptor = cipher.decryptor()
     dec_data = decryptor.update(data) + decryptor.finalize()
@@ -67,7 +66,6 @@ def request_jwt(developer_id, token_payload):
     """
     Get the JWT given a developer ID and an exchange token
     """
-    #TODO: how token_payload looks like?
     resp = requests.post(
         config.AUTH_ENDPOINT,
         data=json.dumps({"developer_id": developer_id, "token_payload": hexlify(token_payload).decode()}),
