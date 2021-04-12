@@ -39,6 +39,8 @@ class TokenCache:
                     return f.read()
 
     def write(self, data):
-        with open(self.cache_path, "w") as f:
+        with open(self.cache_path, "a") as f:
             with file_lock(f, fcntl.LOCK_EX):
+                f.seek(0)
+                f.truncate(0)
                 f.write(data)
