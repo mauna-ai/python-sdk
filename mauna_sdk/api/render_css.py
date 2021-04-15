@@ -16,17 +16,8 @@ from dataclasses_json import DataClassJsonMixin, config
 # fmt: off
 QUERY: List[str] = ["""
 query renderCSS($ssml: String!, $css: String!) {
-  result: callCompose(
-    init: { styled_ssml: $ssml, voice_css: $css }
-    pipeline: [
-      {
-        op: "callApplyVoiceCSS"
-        transform: "r => ({text: r.$result.callApplyVoiceCSS.ssml})"
-      }
-      { op: "callTextToSpeech", transform: "" }
-    ]
-  ) {
-    speech: result
+  result: callApplyVoiceCSS(css: $css, ssml: $ssml) {
+    ssml: result
   }
 }
 
@@ -38,14 +29,14 @@ class renderCSS:
     @dataclass(frozen=True)
     class renderCSSData(DataClassJsonMixin):
         @dataclass(frozen=True)
-        class ComposeResult(DataClassJsonMixin):
-            speech: Optional[dict]
+        class SSMLResult(DataClassJsonMixin):
+            ssml: Optional[str]
 
-        result: Optional[ComposeResult]
+        result: Optional[SSMLResult]
 
     # fmt: off
     @classmethod
-    def execute(cls, client: Client, ssml: str, css: str) -> Optional[renderCSSData.ComposeResult]:
+    def execute(cls, client: Client, ssml: str, css: str) -> Optional[renderCSSData.SSMLResult]:
         variables: Dict[str, Any] = {"ssml": ssml, "css": css}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = client.execute(
@@ -56,7 +47,7 @@ class renderCSS:
 
     # fmt: off
     @classmethod
-    async def execute_async(cls, client: Client, ssml: str, css: str) -> Optional[renderCSSData.ComposeResult]:
+    async def execute_async(cls, client: Client, ssml: str, css: str) -> Optional[renderCSSData.SSMLResult]:
         variables: Dict[str, Any] = {"ssml": ssml, "css": css}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = await client.execute_async(

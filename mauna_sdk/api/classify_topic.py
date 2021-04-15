@@ -15,12 +15,15 @@ from dataclasses_json import DataClassJsonMixin, config
 
 # fmt: off
 QUERY: List[str] = ["""
-query deprecatedGetSentiment($text: String!) {
-  callNlpDoc(text: $text) {
-    sentiment
-    sentences: sents {
-      text
-      sentiment
+query classifyTopic($input: String!, $topics: [String!]!) {
+  result: callClassifyTopic(
+    input: $input
+    topics: $topics
+    allow_multiple: true
+  ) {
+    topics: result {
+      topic
+      score
     }
   }
 }
@@ -29,39 +32,38 @@ query deprecatedGetSentiment($text: String!) {
 ]
 
 
-class deprecatedGetSentiment:
+class classifyTopic:
     @dataclass(frozen=True)
-    class deprecatedGetSentimentData(DataClassJsonMixin):
+    class classifyTopicData(DataClassJsonMixin):
         @dataclass(frozen=True)
-        class NlpDoc(DataClassJsonMixin):
+        class ClassificationResult(DataClassJsonMixin):
             @dataclass(frozen=True)
-            class Span(DataClassJsonMixin):
-                text: Optional[str]
-                sentiment: Optional[Number]
+            class TopicScore(DataClassJsonMixin):
+                topic: str
+                score: Number
 
-            sentiment: Optional[Number]
-            sentences: Optional[List[Span]]
+            topics: Optional[List[TopicScore]]
 
-        callNlpDoc: Optional[NlpDoc]
+        result: Optional[ClassificationResult]
 
     # fmt: off
     @classmethod
-    def execute(cls, client: Client, text: str) -> Optional[deprecatedGetSentimentData.NlpDoc]:
-        variables: Dict[str, Any] = {"text": text}
+    def execute(cls, client: Client, input: str, topics: List[str] = []) -> Optional[classifyTopicData.ClassificationResult]:
+        variables: Dict[str, Any] = {"input": input, "topics": topics}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = client.execute(
             gql("".join(set(QUERY))), variable_values=new_variables
         )
-        res = cls.deprecatedGetSentimentData.from_dict(response_text)
-        return res.callNlpDoc
+        res = cls.classifyTopicData.from_dict(response_text)
+        return res.result
 
     # fmt: off
     @classmethod
-    async def execute_async(cls, client: Client, text: str) -> Optional[deprecatedGetSentimentData.NlpDoc]:
-        variables: Dict[str, Any] = {"text": text}
+    async def execute_async(cls, client: Client, input: str, topics: List[str] = []) -> Optional[classifyTopicData.ClassificationResult]:
+        variables: Dict[str, Any] = {"input": input, "topics": topics}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = await client.execute_async(
             gql("".join(set(QUERY))), variable_values=new_variables
         )
-        res = cls.deprecatedGetSentimentData.from_dict(response_text)
-        return res.callNlpDoc
+        res = cls.classifyTopicData.from_dict(response_text)
+        return res.result

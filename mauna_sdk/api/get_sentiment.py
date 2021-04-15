@@ -15,13 +15,10 @@ from dataclasses_json import DataClassJsonMixin, config
 
 # fmt: off
 QUERY: List[str] = ["""
-query getSentiment($text: String!) {
-  result: callNlpDoc(text: $text) {
-    sentiment
-    sentences: sents {
-      text
-      sentiment
-    }
+query getSentiment($input: String!) {
+  result: callSentimentAnalysis(input: $input) {
+    label
+    score
   }
 }
 
@@ -33,21 +30,16 @@ class getSentiment:
     @dataclass(frozen=True)
     class getSentimentData(DataClassJsonMixin):
         @dataclass(frozen=True)
-        class NlpDoc(DataClassJsonMixin):
-            @dataclass(frozen=True)
-            class Span(DataClassJsonMixin):
-                text: Optional[str]
-                sentiment: Optional[Number]
+        class SentimentAnalysisResult(DataClassJsonMixin):
+            label: Optional[str]
+            score: Optional[Number]
 
-            sentiment: Optional[Number]
-            sentences: Optional[List[Span]]
-
-        result: Optional[NlpDoc]
+        result: Optional[List[SentimentAnalysisResult]]
 
     # fmt: off
     @classmethod
-    def execute(cls, client: Client, text: str) -> Optional[getSentimentData.NlpDoc]:
-        variables: Dict[str, Any] = {"text": text}
+    def execute(cls, client: Client, input: str) -> List[Optional[getSentimentData.SentimentAnalysisResult]]:
+        variables: Dict[str, Any] = {"input": input}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = client.execute(
             gql("".join(set(QUERY))), variable_values=new_variables
@@ -57,8 +49,8 @@ class getSentiment:
 
     # fmt: off
     @classmethod
-    async def execute_async(cls, client: Client, text: str) -> Optional[getSentimentData.NlpDoc]:
-        variables: Dict[str, Any] = {"text": text}
+    async def execute_async(cls, client: Client, input: str) -> List[Optional[getSentimentData.SentimentAnalysisResult]]:
+        variables: Dict[str, Any] = {"input": input}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = await client.execute_async(
             gql("".join(set(QUERY))), variable_values=new_variables

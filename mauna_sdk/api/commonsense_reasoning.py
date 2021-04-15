@@ -13,15 +13,14 @@ from time import perf_counter
 from dataclasses_json import DataClassJsonMixin, config
 
 from gql_client.runtime.enum_utils import enum_field_metadata
-from .enum.categories import Categories
+from .enum.category import Category
 
 
 # fmt: off
 QUERY: List[str] = ["""
-query commonsenseReasoning($text: String!, $categories: [Categories!]!) {
-  result: callCommonsense(text: $text, categories: $categories) {
-    category: name
-    predictions: texts
+query commonsenseReasoning($input: String!, $category: Category!) {
+  result: callCommonsense(input: $input, category: $category) {
+    predictions: result
   }
 }
 
@@ -34,15 +33,14 @@ class commonsenseReasoning:
     class commonsenseReasoningData(DataClassJsonMixin):
         @dataclass(frozen=True)
         class RelationResult(DataClassJsonMixin):
-            category: Optional[str]
             predictions: Optional[List[str]]
 
-        result: Optional[List[RelationResult]]
+        result: Optional[RelationResult]
 
     # fmt: off
     @classmethod
-    def execute(cls, client: Client, text: str, categories: List[Categories] = []) -> List[Optional[commonsenseReasoningData.RelationResult]]:
-        variables: Dict[str, Any] = {"text": text, "categories": categories}
+    def execute(cls, client: Client, input: str, category: Category) -> Optional[commonsenseReasoningData.RelationResult]:
+        variables: Dict[str, Any] = {"input": input, "category": category}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = client.execute(
             gql("".join(set(QUERY))), variable_values=new_variables
@@ -52,8 +50,8 @@ class commonsenseReasoning:
 
     # fmt: off
     @classmethod
-    async def execute_async(cls, client: Client, text: str, categories: List[Categories] = []) -> List[Optional[commonsenseReasoningData.RelationResult]]:
-        variables: Dict[str, Any] = {"text": text, "categories": categories}
+    async def execute_async(cls, client: Client, input: str, category: Category) -> Optional[commonsenseReasoningData.RelationResult]:
+        variables: Dict[str, Any] = {"input": input, "category": category}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = await client.execute_async(
             gql("".join(set(QUERY))), variable_values=new_variables

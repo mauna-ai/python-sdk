@@ -18,8 +18,8 @@ from .enum.a_c_e_output_type import ACEOutputType
 
 # fmt: off
 QUERY: List[str] = ["""
-query parseACE($text: String!, $format: ACEOutputType!) {
-  result: callParseACE(text: $text, format: $format, guess: true) {
+query parseACE($input: String!, $type: ACEOutputType!) {
+  result: callParseACE(input: $input, type: $type) {
     parsed: result
   }
 }
@@ -39,8 +39,8 @@ class parseACE:
 
     # fmt: off
     @classmethod
-    def execute(cls, client: Client, text: str, format: ACEOutputType) -> Optional[parseACEData.ACEResult]:
-        variables: Dict[str, Any] = {"text": text, "format": format}
+    def execute(cls, client: Client, input: str, type: ACEOutputType) -> Optional[parseACEData.ACEResult]:
+        variables: Dict[str, Any] = {"input": input, "type": type}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = client.execute(
             gql("".join(set(QUERY))), variable_values=new_variables
@@ -50,8 +50,8 @@ class parseACE:
 
     # fmt: off
     @classmethod
-    async def execute_async(cls, client: Client, text: str, format: ACEOutputType) -> Optional[parseACEData.ACEResult]:
-        variables: Dict[str, Any] = {"text": text, "format": format}
+    async def execute_async(cls, client: Client, input: str, type: ACEOutputType) -> Optional[parseACEData.ACEResult]:
+        variables: Dict[str, Any] = {"input": input, "type": type}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = await client.execute_async(
             gql("".join(set(QUERY))), variable_values=new_variables

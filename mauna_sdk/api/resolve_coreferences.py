@@ -15,19 +15,17 @@ from dataclasses_json import DataClassJsonMixin, config
 
 # fmt: off
 QUERY: List[str] = ["""
-query resolveCoreferences($text: String!) {
-  result: callNlpDoc(text: $text) {
-    coref: extension {
-      detected: has_coref
-      resolvedOutput: coref_resolved
-      clusters: coref_scores {
-        mention
-        references: scores {
-          match: mention
-          score
-        }
+query resolveCoreferences($input: String!) {
+  result: callResolveCoreference(input: $input) {
+    resolved_text: result
+    coreferences {
+      mention
+      reference {
+        score
+        text
       }
     }
+    has_coreference
   }
 }
 
@@ -39,31 +37,27 @@ class resolveCoreferences:
     @dataclass(frozen=True)
     class resolveCoreferencesData(DataClassJsonMixin):
         @dataclass(frozen=True)
-        class NlpDoc(DataClassJsonMixin):
+        class CorefResult(DataClassJsonMixin):
             @dataclass(frozen=True)
-            class DocExtension(DataClassJsonMixin):
+            class CorefResultScores(DataClassJsonMixin):
                 @dataclass(frozen=True)
-                class CorefScores(DataClassJsonMixin):
-                    @dataclass(frozen=True)
-                    class Scores(DataClassJsonMixin):
-                        match: Optional[str]
-                        score: Optional[Number]
+                class ResultScores(DataClassJsonMixin):
+                    score: Optional[Number]
+                    text: Optional[str]
 
-                    mention: Optional[str]
-                    references: Optional[List[Scores]]
+                mention: Optional[str]
+                reference: Optional[List[ResultScores]]
 
-                detected: Optional[bool]
-                resolvedOutput: Optional[str]
-                clusters: Optional[List[CorefScores]]
+            resolved_text: Optional[str]
+            coreferences: Optional[List[CorefResultScores]]
+            has_coreference: Optional[bool]
 
-            coref: Optional[DocExtension]
-
-        result: Optional[NlpDoc]
+        result: Optional[CorefResult]
 
     # fmt: off
     @classmethod
-    def execute(cls, client: Client, text: str) -> Optional[resolveCoreferencesData.NlpDoc]:
-        variables: Dict[str, Any] = {"text": text}
+    def execute(cls, client: Client, input: str) -> Optional[resolveCoreferencesData.CorefResult]:
+        variables: Dict[str, Any] = {"input": input}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = client.execute(
             gql("".join(set(QUERY))), variable_values=new_variables
@@ -73,8 +67,8 @@ class resolveCoreferences:
 
     # fmt: off
     @classmethod
-    async def execute_async(cls, client: Client, text: str) -> Optional[resolveCoreferencesData.NlpDoc]:
-        variables: Dict[str, Any] = {"text": text}
+    async def execute_async(cls, client: Client, input: str) -> Optional[resolveCoreferencesData.CorefResult]:
+        variables: Dict[str, Any] = {"input": input}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = await client.execute_async(
             gql("".join(set(QUERY))), variable_values=new_variables

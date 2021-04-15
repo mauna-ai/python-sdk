@@ -12,14 +12,15 @@ from typing import Any, AsyncGenerator, Dict, List, Generator, Optional
 from time import perf_counter
 from dataclasses_json import DataClassJsonMixin, config
 
-from .input.context_object import ContextObject
+from .input.turn import Turn
 
 
 # fmt: off
 QUERY: List[str] = ["""
-query parseContext($turns: [ContextObject!]!) {
-  result: callParseContext(turns: $turns) {
-    context {
+query parseContext($history: [Turn!]!) {
+  result: callParseContext(history: $history) {
+    context: result {
+      input
       mentions {
         evokes
         phrase
@@ -44,16 +45,17 @@ class parseContext:
                     evokes: Optional[List[str]]
                     phrase: Optional[str]
 
+                input: Optional[str]
                 mentions: Optional[List[SlingMention]]
 
-            context: Optional[SlingDocument]
+            context: Optional[List[SlingDocument]]
 
-        result: Optional[List[ContextResult]]
+        result: Optional[ContextResult]
 
     # fmt: off
     @classmethod
-    def execute(cls, client: Client, turns: List[ContextObject] = []) -> List[Optional[parseContextData.ContextResult]]:
-        variables: Dict[str, Any] = {"turns": turns}
+    def execute(cls, client: Client, history: List[Turn] = []) -> Optional[parseContextData.ContextResult]:
+        variables: Dict[str, Any] = {"history": history}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = client.execute(
             gql("".join(set(QUERY))), variable_values=new_variables
@@ -63,8 +65,8 @@ class parseContext:
 
     # fmt: off
     @classmethod
-    async def execute_async(cls, client: Client, turns: List[ContextObject] = []) -> List[Optional[parseContextData.ContextResult]]:
-        variables: Dict[str, Any] = {"turns": turns}
+    async def execute_async(cls, client: Client, history: List[Turn] = []) -> Optional[parseContextData.ContextResult]:
+        variables: Dict[str, Any] = {"history": history}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = await client.execute_async(
             gql("".join(set(QUERY))), variable_values=new_variables

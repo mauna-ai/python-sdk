@@ -19,7 +19,7 @@ from .input.turn import Turn
 QUERY: List[str] = ["""
 query chitchat($input: String!, $history: [Turn!]!) {
   result: callChitchat(history: $history, input: $input) {
-    reply: response
+    reply: result
   }
 }
 

@@ -21,9 +21,9 @@ query matchIntent($input: String!, $intents: [String!]!) {
     possible_intents: $intents
     similarity_threshold: 0.7
   ) {
-    matches {
-      intent: matched_intent
-      confidence: similarity
+    matches: result {
+      matched_intent
+      similarity
       slots: word_matches {
         slot
         value: extracted_word
@@ -52,8 +52,8 @@ class matchIntent:
                     match_type: Optional[str]
                     confidence: Optional[Number]
 
-                intent: Optional[str]
-                confidence: Optional[Number]
+                matched_intent: Optional[str]
+                similarity: Optional[Number]
                 slots: Optional[List[WordMatch]]
 
             matches: Optional[List[PhraseMatch]]

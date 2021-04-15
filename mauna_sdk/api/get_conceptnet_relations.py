@@ -12,17 +12,15 @@ from typing import Any, AsyncGenerator, Dict, List, Generator, Optional
 from time import perf_counter
 from dataclasses_json import DataClassJsonMixin, config
 
+from gql_client.runtime.enum_utils import enum_field_metadata
+from .enum.relation import Relation
+
 
 # fmt: off
 QUERY: List[str] = ["""
-query extractNumericData($text: String!) {
-  result: callNlpDoc(text: $text) {
-    tokens {
-      numeric_analysis: extension {
-        data: nfh_head
-        has_numeric: is_nfh
-      }
-    }
+query getConceptnetRelations($input: String!, $relation: Relation!) {
+  result: callPredictRelation(input: $input, relation: $relation) {
+    predictions: result
   }
 }
 
@@ -30,42 +28,33 @@ query extractNumericData($text: String!) {
 ]
 
 
-class extractNumericData:
+class getConceptnetRelations:
     @dataclass(frozen=True)
-    class extractNumericDataData(DataClassJsonMixin):
+    class getConceptnetRelationsData(DataClassJsonMixin):
         @dataclass(frozen=True)
-        class NlpDoc(DataClassJsonMixin):
-            @dataclass(frozen=True)
-            class Token(DataClassJsonMixin):
-                @dataclass(frozen=True)
-                class TokenExtension(DataClassJsonMixin):
-                    data: Optional[str]
-                    has_numeric: Optional[bool]
+        class RelationResult(DataClassJsonMixin):
+            predictions: Optional[List[str]]
 
-                numeric_analysis: Optional[TokenExtension]
-
-            tokens: Optional[List[Token]]
-
-        result: Optional[NlpDoc]
+        result: Optional[RelationResult]
 
     # fmt: off
     @classmethod
-    def execute(cls, client: Client, text: str) -> Optional[extractNumericDataData.NlpDoc]:
-        variables: Dict[str, Any] = {"text": text}
+    def execute(cls, client: Client, input: str, relation: Relation) -> Optional[getConceptnetRelationsData.RelationResult]:
+        variables: Dict[str, Any] = {"input": input, "relation": relation}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = client.execute(
             gql("".join(set(QUERY))), variable_values=new_variables
         )
-        res = cls.extractNumericDataData.from_dict(response_text)
+        res = cls.getConceptnetRelationsData.from_dict(response_text)
         return res.result
 
     # fmt: off
     @classmethod
-    async def execute_async(cls, client: Client, text: str) -> Optional[extractNumericDataData.NlpDoc]:
-        variables: Dict[str, Any] = {"text": text}
+    async def execute_async(cls, client: Client, input: str, relation: Relation) -> Optional[getConceptnetRelationsData.RelationResult]:
+        variables: Dict[str, Any] = {"input": input, "relation": relation}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = await client.execute_async(
             gql("".join(set(QUERY))), variable_values=new_variables
         )
-        res = cls.extractNumericDataData.from_dict(response_text)
+        res = cls.getConceptnetRelationsData.from_dict(response_text)
         return res.result

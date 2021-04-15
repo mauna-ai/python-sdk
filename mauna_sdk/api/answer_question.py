@@ -12,16 +12,15 @@ from typing import Any, AsyncGenerator, Dict, List, Generator, Optional
 from time import perf_counter
 from dataclasses_json import DataClassJsonMixin, config
 
-from gql_client.runtime.enum_utils import enum_field_metadata
-from .enum.relations import Relations
-
 
 # fmt: off
 QUERY: List[str] = ["""
-query conceptnetGrounding($text: String!, $relations: [Relations]!) {
-  result: callPredictRelation(text: $text, relations: $relations) {
-    relation: name
-    predictions: texts
+query answerQuestion($input: String!, $context: String!) {
+  result: callQA(input: $input, context: $context, allow_impossible: true) {
+    answers: result {
+      answer
+      score
+    }
   }
 }
 
@@ -29,34 +28,38 @@ query conceptnetGrounding($text: String!, $relations: [Relations]!) {
 ]
 
 
-class conceptnetGrounding:
+class answerQuestion:
     @dataclass(frozen=True)
-    class conceptnetGroundingData(DataClassJsonMixin):
+    class answerQuestionData(DataClassJsonMixin):
         @dataclass(frozen=True)
-        class RelationResult(DataClassJsonMixin):
-            relation: Optional[str]
-            predictions: Optional[List[str]]
+        class QA_Result(DataClassJsonMixin):
+            @dataclass(frozen=True)
+            class Answer(DataClassJsonMixin):
+                answer: str
+                score: Number
 
-        result: Optional[List[RelationResult]]
+            answers: Answer
+
+        result: Optional[QA_Result]
 
     # fmt: off
     @classmethod
-    def execute(cls, client: Client, text: str, relations: List[Relations] = []) -> List[Optional[conceptnetGroundingData.RelationResult]]:
-        variables: Dict[str, Any] = {"text": text, "relations": relations}
+    def execute(cls, client: Client, input: str, context: str) -> Optional[answerQuestionData.QA_Result]:
+        variables: Dict[str, Any] = {"input": input, "context": context}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = client.execute(
             gql("".join(set(QUERY))), variable_values=new_variables
         )
-        res = cls.conceptnetGroundingData.from_dict(response_text)
+        res = cls.answerQuestionData.from_dict(response_text)
         return res.result
 
     # fmt: off
     @classmethod
-    async def execute_async(cls, client: Client, text: str, relations: List[Relations] = []) -> List[Optional[conceptnetGroundingData.RelationResult]]:
-        variables: Dict[str, Any] = {"text": text, "relations": relations}
+    async def execute_async(cls, client: Client, input: str, context: str) -> Optional[answerQuestionData.QA_Result]:
+        variables: Dict[str, Any] = {"input": input, "context": context}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = await client.execute_async(
             gql("".join(set(QUERY))), variable_values=new_variables
         )
-        res = cls.conceptnetGroundingData.from_dict(response_text)
+        res = cls.answerQuestionData.from_dict(response_text)
         return res.result

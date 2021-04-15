@@ -12,13 +12,17 @@ from typing import Any, AsyncGenerator, Dict, List, Generator, Optional
 from time import perf_counter
 from dataclasses_json import DataClassJsonMixin, config
 
+from .input.turn import Turn
+
 
 # fmt: off
 QUERY: List[str] = ["""
-query predictNextTurn($history: [String!]!, $alternatives: [String!]!) {
-  result: callNextDialogTurn(history: $history, alternatives: $alternatives) {
-    nextTurn: alternative
-    confidence
+query predictNextTurn($history: [Turn!]!, $input: [String!]!) {
+  result: callNextDialogTurn(history: $history, input: $input) {
+    nextTurns: result {
+      alternative
+      score
+    }
   }
 }
 
@@ -30,16 +34,20 @@ class predictNextTurn:
     @dataclass(frozen=True)
     class predictNextTurnData(DataClassJsonMixin):
         @dataclass(frozen=True)
-        class DialogAlternative(DataClassJsonMixin):
-            nextTurn: Optional[str]
-            confidence: Optional[Number]
+        class Result(DataClassJsonMixin):
+            @dataclass(frozen=True)
+            class DialogAlternative(DataClassJsonMixin):
+                alternative: Optional[str]
+                score: Optional[Number]
 
-        result: Optional[List[DialogAlternative]]
+            nextTurns: Optional[List[DialogAlternative]]
+
+        result: Optional[Result]
 
     # fmt: off
     @classmethod
-    def execute(cls, client: Client, history: List[str] = [], alternatives: List[str] = []) -> List[Optional[predictNextTurnData.DialogAlternative]]:
-        variables: Dict[str, Any] = {"history": history, "alternatives": alternatives}
+    def execute(cls, client: Client, history: List[Turn] = [], input: List[str] = []) -> Optional[predictNextTurnData.Result]:
+        variables: Dict[str, Any] = {"history": history, "input": input}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = client.execute(
             gql("".join(set(QUERY))), variable_values=new_variables
@@ -49,8 +57,8 @@ class predictNextTurn:
 
     # fmt: off
     @classmethod
-    async def execute_async(cls, client: Client, history: List[str] = [], alternatives: List[str] = []) -> List[Optional[predictNextTurnData.DialogAlternative]]:
-        variables: Dict[str, Any] = {"history": history, "alternatives": alternatives}
+    async def execute_async(cls, client: Client, history: List[Turn] = [], input: List[str] = []) -> Optional[predictNextTurnData.Result]:
+        variables: Dict[str, Any] = {"history": history, "input": input}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = await client.execute_async(
             gql("".join(set(QUERY))), variable_values=new_variables

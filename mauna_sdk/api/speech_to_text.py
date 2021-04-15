@@ -15,11 +15,9 @@ from dataclasses_json import DataClassJsonMixin, config
 
 # fmt: off
 QUERY: List[str] = ["""
-query speechToText($audio: String!) {
-  result: callSpeechToText(audioB64: $audio) {
-    transcript: alternatives {
-      text: transcript
-    }
+query speechToText($input: String!) {
+  result: callSpeechToText(input: $input) {
+    transcript: result
   }
 }
 
@@ -32,18 +30,14 @@ class speechToText:
     class speechToTextData(DataClassJsonMixin):
         @dataclass(frozen=True)
         class STTResult(DataClassJsonMixin):
-            @dataclass(frozen=True)
-            class TextAlternative(DataClassJsonMixin):
-                text: Optional[str]
+            transcript: Optional[str]
 
-            transcript: Optional[List[TextAlternative]]
-
-        result: Optional[List[STTResult]]
+        result: STTResult
 
     # fmt: off
     @classmethod
-    def execute(cls, client: Client, audio: str) -> List[Optional[speechToTextData.STTResult]]:
-        variables: Dict[str, Any] = {"audio": audio}
+    def execute(cls, client: Client, input: str) -> speechToTextData.STTResult:
+        variables: Dict[str, Any] = {"input": input}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = client.execute(
             gql("".join(set(QUERY))), variable_values=new_variables
@@ -53,8 +47,8 @@ class speechToText:
 
     # fmt: off
     @classmethod
-    async def execute_async(cls, client: Client, audio: str) -> List[Optional[speechToTextData.STTResult]]:
-        variables: Dict[str, Any] = {"audio": audio}
+    async def execute_async(cls, client: Client, input: str) -> speechToTextData.STTResult:
+        variables: Dict[str, Any] = {"input": input}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = await client.execute_async(
             gql("".join(set(QUERY))), variable_values=new_variables

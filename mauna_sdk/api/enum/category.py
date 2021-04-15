@@ -4,8 +4,7 @@
 from enum import Enum
 
 
-class Categories(Enum):
-    all = "all"
+class Category(Enum):
     oEffect = "oEffect"
     oReact = "oReact"
     oWant = "oWant"
@@ -18,5 +17,5 @@ class Categories(Enum):
     MISSING_ENUM = ""
 
     @classmethod
-    def _missing_(cls, value: object) -> "Categories":
+    def _missing_(cls, value: object) -> "Category":
         return cls.MISSING_ENUM

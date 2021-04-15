@@ -4,7 +4,7 @@
 from enum import Enum
 
 
-class Relations(Enum):
+class Relation(Enum):
     AtLocation = "AtLocation"
     CapableOf = "CapableOf"
     Causes = "Causes"
@@ -39,9 +39,8 @@ class Relations(Enum):
     RelatedTo = "RelatedTo"
     SymbolOf = "SymbolOf"
     UsedFor = "UsedFor"
-    all = "all"
     MISSING_ENUM = ""
 
     @classmethod
-    def _missing_(cls, value: object) -> "Relations":
+    def _missing_(cls, value: object) -> "Relation":
         return cls.MISSING_ENUM

@@ -15,9 +15,9 @@ from dataclasses_json import DataClassJsonMixin, config
 
 # fmt: off
 QUERY: List[str] = ["""
-query paraphraseSentence($sentence: String!) {
-  result: callParaphraseSentence(input: $sentence, number_of_paraphrases: 10) {
-    paraphrases
+query paraphraseSentence($input: String!) {
+  result: callParaphraseSentence(input: $input) {
+    paraphrases: result
   }
 }
 
@@ -36,8 +36,8 @@ class paraphraseSentence:
 
     # fmt: off
     @classmethod
-    def execute(cls, client: Client, sentence: str) -> Optional[paraphraseSentenceData.Paraphrase]:
-        variables: Dict[str, Any] = {"sentence": sentence}
+    def execute(cls, client: Client, input: str) -> Optional[paraphraseSentenceData.Paraphrase]:
+        variables: Dict[str, Any] = {"input": input}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = client.execute(
             gql("".join(set(QUERY))), variable_values=new_variables
@@ -47,8 +47,8 @@ class paraphraseSentence:
 
     # fmt: off
     @classmethod
-    async def execute_async(cls, client: Client, sentence: str) -> Optional[paraphraseSentenceData.Paraphrase]:
-        variables: Dict[str, Any] = {"sentence": sentence}
+    async def execute_async(cls, client: Client, input: str) -> Optional[paraphraseSentenceData.Paraphrase]:
+        variables: Dict[str, Any] = {"input": input}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = await client.execute_async(
             gql("".join(set(QUERY))), variable_values=new_variables

@@ -15,14 +15,11 @@ from dataclasses_json import DataClassJsonMixin, config
 
 # fmt: off
 QUERY: List[str] = ["""
-query measureSimilarity($sentence: String!, $compareWith: [String!]!) {
-  result: callMeasureSimilarity(
-    sentence: $sentence
-    compareWith: $compareWith
-  ) {
+query measureSimilarity($input: String!, $candidates: [String!]!) {
+  result: callMeasureSimilarity(input: $input, candidates: $candidates) {
     scores: result {
       score
-      sentencePair
+      candidate
     }
   }
 }
@@ -39,7 +36,7 @@ class measureSimilarity:
             @dataclass(frozen=True)
             class PairSimilarity(DataClassJsonMixin):
                 score: Optional[Number]
-                sentencePair: Optional[List[str]]
+                candidate: Optional[str]
 
             scores: Optional[List[PairSimilarity]]
 
@@ -47,8 +44,8 @@ class measureSimilarity:
 
     # fmt: off
     @classmethod
-    def execute(cls, client: Client, sentence: str, compareWith: List[str] = []) -> Optional[measureSimilarityData.SentenceSimilarityScores]:
-        variables: Dict[str, Any] = {"sentence": sentence, "compareWith": compareWith}
+    def execute(cls, client: Client, input: str, candidates: List[str] = []) -> Optional[measureSimilarityData.SentenceSimilarityScores]:
+        variables: Dict[str, Any] = {"input": input, "candidates": candidates}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = client.execute(
             gql("".join(set(QUERY))), variable_values=new_variables
@@ -58,8 +55,8 @@ class measureSimilarity:
 
     # fmt: off
     @classmethod
-    async def execute_async(cls, client: Client, sentence: str, compareWith: List[str] = []) -> Optional[measureSimilarityData.SentenceSimilarityScores]:
-        variables: Dict[str, Any] = {"sentence": sentence, "compareWith": compareWith}
+    async def execute_async(cls, client: Client, input: str, candidates: List[str] = []) -> Optional[measureSimilarityData.SentenceSimilarityScores]:
+        variables: Dict[str, Any] = {"input": input, "candidates": candidates}
         new_variables = encode_variables(variables, custom_scalars)
         response_text = await client.execute_async(
             gql("".join(set(QUERY))), variable_values=new_variables
