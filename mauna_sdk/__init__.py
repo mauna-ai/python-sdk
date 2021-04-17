@@ -16,5 +16,5 @@ def Mauna(api_key, developer_id):
         cache.write(jwt_token)
 
     transport = AIOHTTPTransport(url=config.API_ENDPOINT, headers={"Authorization": f"Bearer {jwt_token}"})
-    return Client(transport=transport, fetch_schema_from_transport=False)
+    return Client(transport=transport, fetch_schema_from_transport=True)
 
