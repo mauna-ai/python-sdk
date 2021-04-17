@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mauna_sdk"
-version = "0.2.19"
+version = "0.2.21"
 description = "Mauna SDK"
 authors = ["Dmitry Paramonov <asmatic075@gmail.com>"]
 license = "ISC"
